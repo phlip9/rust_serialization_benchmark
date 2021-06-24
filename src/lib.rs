@@ -1,4 +1,5 @@
 pub mod bench_abomonation;
+pub mod bench_bcs;
 pub mod bench_bincode;
 pub mod bench_borsh;
 pub mod bench_capnp;
@@ -16,6 +17,7 @@ pub mod datasets;
 
 use core::{mem, ops};
 use rand::Rng;
+use std::{cmp::Ord, collections::BTreeMap};
 
 pub trait Generate {
     fn generate<R: Rng>(rng: &mut R) -> Self;
@@ -40,7 +42,7 @@ macro_rules! impl_generate {
                 rng.gen()
             }
         }
-    }
+    };
 }
 
 impl_generate!(u8);
@@ -95,7 +97,10 @@ macro_rules! impl_array {
     }
 }
 
-impl_array!(31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, );
+impl_array!(
+    31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8,
+    7, 6, 5, 4, 3, 2, 1, 0,
+);
 
 impl<T: Generate> Generate for Option<T> {
     fn generate<R: Rng>(rng: &mut R) -> Self {
@@ -114,6 +119,20 @@ pub fn generate_vec<R: Rng, T: Generate>(rng: &mut R, range: ops::Range<usize>) 
         result.push(T::generate(rng));
     }
     result
+}
+
+pub fn generate_btreemap<R, K, V>(rng: &mut R, range: ops::Range<usize>) -> BTreeMap<K, V>
+where
+    R: Rng,
+    K: Generate + Ord,
+    V: Generate,
+{
+    generate_vec::<R, (K, V)>(rng, range).into_iter().collect()
+}
+
+pub fn generate_oneof<'a, R: Rng, T>(rng: &mut R, ts: &'a [T]) -> &'a T {
+    let idx = rng.gen_range(0..ts.len());
+    &ts[idx]
 }
 
 pub fn zlib_size(mut bytes: &[u8]) -> usize {

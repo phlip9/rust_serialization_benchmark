@@ -1,0 +1,110 @@
+# LOG
+
+log/abomonation/size    1705800
+log/abomonation/zlib    511385
+
+log/bcs/size            765778
+log/bcs/zlib            312739
+
+log/bincode/size        1045784
+log/bincode/zlib        374305
+
+log/borsh/size          885780
+log/borsh/zlib          363280
+
+log/capnp/size          1443216
+log/capnp/zlib          509618
+
+log/cbor/size           1407835
+log/cbor/zlib           407372
+
+log/flatbuffers/size    1276368
+log/flatbuffers/zlib    469962
+
+log/nachricht/size      926221
+log/nachricht/zlib      365209
+
+log/postcard/size       765778
+log/postcard/zlib       312739
+
+log/prost/size          764951
+log/prost/zlib          269811
+
+log/rkyv/size           1065784
+log/rkyv/zlib           459664
+
+log/rmp/size            784997
+log/rmp/zlib            326654
+
+log/ron/size            1607459
+log/ron/zlib            452648
+
+log/serde_json/size     1827461
+log/serde_json/zlib     474358
+
+log/speedy/size         885780
+log/speedy/zlib         363280
+
+log/bcs/serialize          time: 641.90 us
+log/bcs/deserialize        time: 5.9523 ms
+
+log/bincode/serialize      time: 521.13 us
+log/bincode/deserialize    time: 5.7461 ms
+
+log/borsh/serialize        time: 587.03 us
+log/borsh/deserialize      time: 5.3926 ms
+
+log/serde_json/serialize   time: 4.2143 ms
+log/serde_json/deserialize time: 10.270 ms
+
+log/rkyv/serialize         time: 304.84 us
+log/rkyv/read (validated)  time: 1.1103 ms
+
+log/prost/serialize (populate + encode) time: 6.4341 ms
+log/prost/serialize (encode) time: 1.4927 ms
+log/prost/deserialize        time: 6.1282 ms
+
+
+# CONSENSUS
+
+consensus/bcs/size               31087
+consensus/bcs/zlib               11728
+
+consensus/bincode/size           37562
+consensus/bincode/zlib           13365
+
+consensus/cbor/size              52528
+consensus/cbor/zlib              14383
+
+consensus/nachricht/size         52715
+consensus/nachricht/zlib         14405
+
+consensus/postcard/size          31087
+consensus/postcard/zlib          11728
+
+consensus/ron/size               74003
+consensus/ron/zlib               18060
+
+consensus/serde_json/size        90119
+consensus/serde_json/zlib        21756
+
+consensus/bcs/serialize          time: 71.511 us
+consensus/bcs/deserialize        time: 133.10 us
+
+consensus/bincode/serialize      time: 27.981 us
+consensus/bincode/deserialize    time: 112.23 us
+
+consensus/cbor/serialize         time: 61.113 us
+consensus/cbor/deserialize       time: 227.75 us
+
+consensus/nachricht/serialize    time: 375.31 us
+consensus/nachricht/deserialize  time: 287.69 us
+
+consensus/postcard/serialize     time: 27.362 us
+consensus/postcard/deserialize   time: 123.40 us
+
+consensus/ron/serialize          time: 1.5328 ms
+consensus/ron/deserialize        time: 611.74 us
+
+consensus/serde_json/serialize   time: 405.81 us
+consensus/serde_json/deserialize time: 517.27 us

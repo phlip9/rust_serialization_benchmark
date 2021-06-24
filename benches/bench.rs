@@ -1,21 +1,9 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rand_pcg::Lcg64Xsh32;
 use rust_serialization_benchmark::{
-    bench_abomonation,
-    bench_bincode,
-    bench_borsh,
-    bench_capnp,
-    bench_cbor,
-    bench_flatbuffers,
-    bench_nachricht,
-    bench_postcard,
-    bench_prost,
-    bench_rkyv,
-    bench_rmp,
-    bench_ron,
-    bench_serde_json,
-    bench_speedy,
-    generate_vec,
+    bench_abomonation, bench_bcs, bench_bincode, bench_borsh, bench_capnp, bench_cbor,
+    bench_flatbuffers, bench_nachricht, bench_postcard, bench_prost, bench_rkyv, bench_rmp,
+    bench_ron, bench_serde_json, bench_speedy, generate_vec, Generate,
 };
 
 fn bench_log(c: &mut Criterion) {
@@ -42,13 +30,18 @@ fn bench_log(c: &mut Criterion) {
         }
     });
 
+    bench_bcs::bench(BENCH, c, &data);
+
     bench_bincode::bench(BENCH, c, &data);
 
     bench_borsh::bench(BENCH, c, &data);
 
     bench_capnp::bench(BENCH, c, &data, |bytes| {
-        let message_reader = capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
-        let data = message_reader.get_root::<rust_serialization_benchmark::datasets::log::cp::logs::Reader>().unwrap();
+        let message_reader =
+            capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
+        let data = message_reader
+            .get_root::<rust_serialization_benchmark::datasets::log::cp::logs::Reader>()
+            .unwrap();
         for log in data.get_logs().unwrap().iter() {
             black_box(log.get_address().unwrap());
             black_box(log.get_code());
@@ -58,14 +51,16 @@ fn bench_log(c: &mut Criterion) {
 
     bench_cbor::bench(BENCH, c, &data);
 
-    bench_flatbuffers::bench(BENCH, c, &data, |bytes| { unsafe {
-        let data = flatbuffers::root_unchecked::<rust_serialization_benchmark::datasets::log::fb::Logs>(bytes);
+    bench_flatbuffers::bench(BENCH, c, &data, |bytes| unsafe {
+        let data = flatbuffers::root_unchecked::<
+            rust_serialization_benchmark::datasets::log::fb::Logs,
+        >(bytes);
         for log in data.logs().iter() {
             black_box(log.address());
             black_box(log.code());
             black_box(log.size_());
         }
-    }});
+    });
 
     bench_nachricht::bench(BENCH, c, &data);
 
@@ -73,7 +68,10 @@ fn bench_log(c: &mut Criterion) {
 
     bench_prost::bench(BENCH, c, &data);
 
-    bench_rkyv::bench(BENCH, c, &data, 
+    bench_rkyv::bench(
+        BENCH,
+        c,
+        &data,
         |data| {
             for log in data.logs.iter() {
                 black_box(log.address);
@@ -84,11 +82,16 @@ fn bench_log(c: &mut Criterion) {
         |mut logs| {
             for i in 0..logs.as_ref().logs.len() {
                 let mut log = logs.as_mut().logs_pin().index_pin(i);
-                *log.as_mut().address_pin() = Address { x0: 0, x1: 0, x2: 0, x3: 0 };
+                *log.as_mut().address_pin() = Address {
+                    x0: 0,
+                    x1: 0,
+                    x2: 0,
+                    x3: 0,
+                };
                 *log.as_mut().code_pin() = 200;
                 *log.as_mut().size_pin() = 0;
             }
-        }
+        },
     );
 
     bench_rmp::bench(BENCH, c, &data);
@@ -122,13 +125,19 @@ fn bench_mesh(c: &mut Criterion) {
         }
     });
 
+    // bcs doesn't support floats
+    // bench_bcs::bench(BENCH, c, &data);
+
     bench_bincode::bench(BENCH, c, &data);
 
     bench_borsh::bench(BENCH, c, &data);
 
     bench_capnp::bench(BENCH, c, &data, |bytes| {
-        let message_reader = capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
-        let data = message_reader.get_root::<rust_serialization_benchmark::datasets::mesh::cp::mesh::Reader>().unwrap();
+        let message_reader =
+            capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
+        let data = message_reader
+            .get_root::<rust_serialization_benchmark::datasets::mesh::cp::mesh::Reader>()
+            .unwrap();
         for triangle in data.get_triangles().unwrap().iter() {
             black_box(triangle.get_normal().unwrap());
         }
@@ -136,12 +145,14 @@ fn bench_mesh(c: &mut Criterion) {
 
     bench_cbor::bench(BENCH, c, &data);
 
-    bench_flatbuffers::bench(BENCH, c, &data, |bytes| { unsafe {
-        let data = flatbuffers::root_unchecked::<rust_serialization_benchmark::datasets::mesh::fb::Mesh>(bytes);
+    bench_flatbuffers::bench(BENCH, c, &data, |bytes| unsafe {
+        let data = flatbuffers::root_unchecked::<
+            rust_serialization_benchmark::datasets::mesh::fb::Mesh,
+        >(bytes);
         for triangle in data.triangles().iter() {
             black_box(triangle.normal());
         }
-    }});
+    });
 
     bench_nachricht::bench(BENCH, c, &data);
 
@@ -149,7 +160,10 @@ fn bench_mesh(c: &mut Criterion) {
 
     bench_prost::bench(BENCH, c, &data);
 
-    bench_rkyv::bench(BENCH, c, &data, 
+    bench_rkyv::bench(
+        BENCH,
+        c,
+        &data,
         |mesh| {
             for triangle in mesh.triangles.iter() {
                 black_box(triangle.normal);
@@ -162,7 +176,7 @@ fn bench_mesh(c: &mut Criterion) {
                 triangle.normal.y = 0f32;
                 triangle.normal.z = 0f32;
             }
-        }
+        },
     );
 
     bench_rmp::bench(BENCH, c, &data);
@@ -175,7 +189,7 @@ fn bench_mesh(c: &mut Criterion) {
 }
 
 fn bench_minecraft_savedata(c: &mut Criterion) {
-    use rust_serialization_benchmark::datasets::minecraft_savedata::{Player, Players, GameType};
+    use rust_serialization_benchmark::datasets::minecraft_savedata::{GameType, Player, Players};
 
     const BENCH: &'static str = "minecraft_savedata";
 
@@ -196,12 +210,16 @@ fn bench_minecraft_savedata(c: &mut Criterion) {
         }
     });
 
+    // bcs doesn't support floats
+    // bench_bcs::bench(BENCH, c, &data);
+
     bench_bincode::bench(BENCH, c, &data);
 
     bench_borsh::bench(BENCH, c, &data);
 
     bench_capnp::bench(BENCH, c, &data, |bytes| {
-        let message_reader = capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
+        let message_reader =
+            capnp::serialize::read_message_from_flat_slice(bytes, Default::default()).unwrap();
         let data = message_reader.get_root::<rust_serialization_benchmark::datasets::minecraft_savedata::cp::players::Reader>().unwrap();
         for player in data.get_players().unwrap().iter() {
             black_box(player.get_game_type().unwrap());
@@ -210,12 +228,14 @@ fn bench_minecraft_savedata(c: &mut Criterion) {
 
     bench_cbor::bench(BENCH, c, &data);
 
-    bench_flatbuffers::bench(BENCH, c, &data, |bytes| { unsafe {
-        let data = flatbuffers::root_unchecked::<rust_serialization_benchmark::datasets::minecraft_savedata::fb::Players>(bytes);
+    bench_flatbuffers::bench(BENCH, c, &data, |bytes| unsafe {
+        let data = flatbuffers::root_unchecked::<
+            rust_serialization_benchmark::datasets::minecraft_savedata::fb::Players,
+        >(bytes);
         for player in data.players().iter() {
             black_box(player.game_type());
         }
-    }});
+    });
 
     bench_nachricht::bench(BENCH, c, &data);
 
@@ -223,7 +243,10 @@ fn bench_minecraft_savedata(c: &mut Criterion) {
 
     bench_prost::bench(BENCH, c, &data);
 
-    bench_rkyv::bench(BENCH, c, &data,
+    bench_rkyv::bench(
+        BENCH,
+        c,
+        &data,
         |data| {
             for player in data.players.iter() {
                 black_box(player.game_type);
@@ -237,7 +260,7 @@ fn bench_minecraft_savedata(c: &mut Criterion) {
                 *player.as_mut().spawn_y_pin() = 0;
                 *player.as_mut().spawn_z_pin() = 0;
             }
-        }
+        },
     );
 
     bench_rmp::bench(BENCH, c, &data);
@@ -249,10 +272,39 @@ fn bench_minecraft_savedata(c: &mut Criterion) {
     bench_speedy::bench(BENCH, c, &data);
 }
 
+fn bench_consensus(c: &mut Criterion) {
+    use rust_serialization_benchmark::datasets::consensus::ConsensusMsg;
+
+    const BENCH: &'static str = "consensus";
+
+    // nothing up our sleeves, state and stream are first 20 digits of pi
+    const STATE: u64 = 3141592653;
+    const STREAM: u64 = 5897932384;
+
+    let mut rng = Lcg64Xsh32::new(STATE, STREAM);
+
+    let data: ConsensusMsg = Generate::generate(&mut rng);
+
+    bench_bcs::bench(BENCH, c, &data);
+
+    bench_bincode::bench(BENCH, c, &data);
+
+    bench_cbor::bench(BENCH, c, &data);
+
+    bench_nachricht::bench(BENCH, c, &data);
+
+    bench_postcard::bench(BENCH, c, &data);
+
+    bench_ron::bench(BENCH, c, &data);
+
+    bench_serde_json::bench(BENCH, c, &data);
+}
+
 pub fn criterion_benchmark(c: &mut Criterion) {
-    bench_log(c);
-    bench_mesh(c);
-    bench_minecraft_savedata(c);
+    // bench_log(c);
+    // bench_mesh(c);
+    // bench_minecraft_savedata(c);
+    bench_consensus(c);
 }
 
 criterion_group!(benches, criterion_benchmark);
